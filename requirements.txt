@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+newspaper3k
+python-multipart
+scikit-learn
+requests
+beautifulsoup4
+lxml-html-clean       
