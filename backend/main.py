@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from newspaper import Article
+from sklearn.feature_extraction.text import TfidfVectorizer
 import re, uvicorn, requests
 from bs4 import BeautifulSoup
 
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,6 +38,7 @@ async def analyze(req: URLRequest):
             raise Exception("Text too short, trying fallback")
 
     except Exception:
+       
         try:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -50,13 +53,28 @@ async def analyze(req: URLRequest):
             print("Error fetching article:", e)
             return {"status": "error", "message": str(e)}
 
+    
+    try:
+        if len(text) < 100:
+             return {"status": "error", "message": "Could not extract sufficient text from URL."}
 
-    if len(text) < 100:
-         return {"status": "error", "message": "Could not extract sufficient text from URL."}
+        vectorizer = TfidfVectorizer(max_features=30, stop_words='english')
+        X = vectorizer.fit_transform([text])
+        feature_names = vectorizer.get_feature_names_out()
+        scores = X.toarray()[0]
 
-    print("Fetched text length:", len(text))
-    return {"status": "success", "text": text}
+        words = [
+            {"word": w, "weight": float(s)}
+            for w, s in sorted(zip(feature_names, scores), key=lambda x: x[1], reverse=True)
+        ]
 
+        print("Extracted words:", words)
+
+        return {"status": "success", "words": words}
+
+    except Exception as e:
+        print("Error analyzing text:", e)
+        return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
