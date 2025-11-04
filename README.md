@@ -18,11 +18,66 @@ It consists of:
 * **Scraping Fallback**: Uses `requests` and `BeautifulSoup` if `newspaper3k` fails.
 * **JSON Response**: Returns a JSON object with the fetched text: `{"status": "success", "text": "..."}`.
 
-### To Run This Part (Backend Only):
-1.  `cd backend`
-2.  `python -m venv venv`
-3.  `source venv/bin/activate` (or `.\venv\Scripts\activate` on Windows)
-4.  `pip install -r requirements.txt`
-5.  `uvicorn main:app --reload`
+---
 
-The server will be running at `http://127.0.0.1:8000`.  
+## Part 2: Backend Topic Modeling (TF-IDF)
+
+### Features Implemented:
+* **TF-IDF Analysis**: Added `scikit-learn` to the project.
+* **Keyword Extraction**: The `/analyze` endpoint now processes the raw text using `TfidfVectorizer` to find the top 30 most relevant keywords.
+* **Updated Response Format**: The API now returns the final data structure required by the frontend: `{"status": "success", "words": [{"word": "...", "weight": 0.8}, ...]}`.
+
+---
+
+## Part 3: React Frontend UI & API Call
+
+### Features Implemented:
+* **React Setup**: Added a `frontend` folder with a standard Vite + React project.
+* **UI Components**: (`src/App.jsx`) Created the main UI with a URL input field and an "Analyze" button.
+* **API Call**: Uses `axios` to send the URL to the `http://localhost:8000/analyze` backend endpoint.
+* **State Management**: Handles `loading` and `error` states to give user feedback.
+* **3D Visualization**: (`src/WordCloud3D.jsx`) Renders the word data in a 3D scene using React Three Fiber and Drei.
+
+---
+
+## 🚀 How to Run the Full Application (Frontend + Backend)
+
+You will need **two terminals** running at the same time.
+
+### Terminal 1: Run the Backend
+1.  Navigate to the `backend` folder:
+    ```bash
+    cd backend
+    ```
+2.  (If not already done) Create and activate a virtual environment:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate 
+    # On Windows: .\venv\Scripts\activate
+    ```
+3.  Install the Python dependencies (includes `scikit-learn` now):
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  Start the FastAPI server:
+    ```bash
+    uvicorn main:app --reload
+    ```
+    > **✅ Backend will be running at `http://127.0.0.1:8000`**
+
+### Terminal 2: Run the Frontend
+1.  Navigate to the `frontend` folder:
+    ```bash
+    cd frontend
+    ```
+2.  Install the Node.js dependencies:
+    ```bash
+    npm install
+    ```
+3.  Start the React development server:
+    ```bash
+    npm run dev
+    ```
+    > **✅ Frontend will be running at `http://localhost:5173` (or a similar port).**
+
+You can now open `http://localhost:5173` in your browser to use the app.
